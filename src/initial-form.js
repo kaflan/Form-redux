@@ -10,59 +10,55 @@ const data = {
   }
 };
 
+const DropDownMenu = (props) => {
+  return (
+    <div className="dropdown">
+      dropdown
+    <button className="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        Dropdown
+    <span className="caret"></span>
+      </button>
+      <ul className="dropdown-menu" aria-labelledby="dropdownMenu1">
+        <li><a>Action</a></li>
+        <li onClick={(e) => props.chacngeDropdown(e)} ><a>Buttons</a></li>
+      </ul>
+    </div>)
+};
+
+const Buttons = (props) => (
+  <div className="btn-group" role="group" aria-label="...">
+    <button type="button" className="btn btn-default" onClick={(e) => props.chacngeDropdown(e)}>Cancel</button>
+    <button type="button" className="btn btn-default">Apply</button>
+  </div>);
 
 let InitializeFromStateForm = props => {
-  const { handleSubmit, pristine, load, reset, submitting } = props;
-  load(data)
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="employed">Employed</label>
-        <div>
-          <Field
-            name="employed.enabled"
-            id="employed"
-            component="input"
-            type="checkbox"
-          />
-          <Field
-            name="employed.value"
-            id="employed2"
-            component="input"
-            type="text"
-          />
-        </div>
-      </div>
-      <div>
-        <button type="submit" disabled={pristine || submitting}>Submit</button>
-        <button type="button" disabled={pristine || submitting} onClick={reset}>
-          Undo Changes
-        </button>
-      </div>
-    </form>
+    props.visibleDropdown ? <Buttons {...props} /> : <DropDownMenu {...props} />
   );
 };
-class FormRedux extends React.Component {
-  componentWillMount() {
-    this.props.load(data);
-  }
 
+class FormRedux extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      visibleDropdown: false
+    };
+  }
+  chacngeDropdown = (e) => {
+    if (this.state.visibleDropdown) {
+      this.setState({
+        visibleDropdown: false
+      });
+      return false;
+    }
+    this.setState({
+      visibleDropdown: true
+    });
+  };
   render() {
-    return (<InitializeFromStateForm ></InitializeFromStateForm>);
+    return (<InitializeFromStateForm visibleDropdown={this.state.visibleDropdown} chacngeDropdown={this.chacngeDropdown}></InitializeFromStateForm>);
   }
 }
 // Decorate with reduxForm(). It will read the initialValues prop provided by connect()
-InitializeFromStateForm = reduxForm({
-  form: 'initializeFromState', // a unique identifier for this form
-})(InitializeFromStateForm);
-
-// You have to connect() to any reducers that you wish to connect to yourself
-InitializeFromStateForm = connect(
-  state => {
-    console.log(state, 'state');
-    return ({ initialValues: state.account.data })// pull initial values from account reducer
-  },
-  { load: loadAccount }, // bind account loading action creator
-)(InitializeFromStateForm);
 
 export default FormRedux;
